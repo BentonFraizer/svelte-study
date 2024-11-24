@@ -12,19 +12,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  place-items: flex-start;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -39,8 +30,7 @@ h1 {
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-  border: 2px solid black;
-  border-radius: 10px;
+  color: black;
 }
 
 button {
@@ -56,7 +46,7 @@ button {
   color: black;
   margin-right: 30px;
 
-  &:last-child {
+  &:last-of-type {
     margin-right: 0;
   }
 }
