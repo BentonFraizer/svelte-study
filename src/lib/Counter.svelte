@@ -10,6 +10,7 @@
   let timestamp: number = $state(0);
   let history: IAction[] = $state([]);
   let lastHistoryActions: IAction[] = $derived(history.slice(-5).reverse());
+  let average =  $derived(history.length > 0 ? history.reduce((acc, cur) => acc + cur.newValue, 0) / history.length : 0);
 
   const decrement = () => {
     count -= 1;
@@ -32,9 +33,6 @@
     })
     timestamp += 1;
   }
-
-  $inspect("history",history);
-  $inspect("lastHistoryActions", lastHistoryActions);
 </script>
 
 <div class="controls">
@@ -43,9 +41,11 @@
   <button onclick={decrement}>
     Decrement
   </button>
-  <button onclick={increment}>
+  <button onclick={increment} style="margin-bottom: 20px">
     Increment
   </button>
+  <hr />
+  <p>Average value: {average.toFixed(2)}</p>
 </div>
 
 
