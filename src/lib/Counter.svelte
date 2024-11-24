@@ -1,10 +1,37 @@
 <script lang="ts">
-  let count: number = $state(0)
+  interface IAction {
+    type: "decrement" | "increment";
+    timestamp: number;
+    previousValue: number;
+    newValue: number;
+  }
+
+  let count: number = $state(0);
+  let history: IAction[] = $state([]);
+
+  const decrement = () => {
+    count -= 1;
+  }
+
   const increment = () => {
-    count += 1
+    count += 1;
   }
 </script>
 
-<button onclick={increment}>
-  count is {count}
+<p>{count}</p>
+
+<button onclick={decrement}>
+  Decrement
 </button>
+<button onclick={increment}>
+  Increment
+</button>
+
+
+<style>
+  p {
+    font-size: 30px;
+    color: black;
+    font-weight: bold;
+  }
+</style>
