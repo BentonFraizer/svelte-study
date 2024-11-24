@@ -44,10 +44,15 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
   color: black;
-  margin-right: 30px;
+  margin-right: 0;
 
-  &:last-of-type {
-    margin-right: 0;
+  &:first-of-type {
+    margin-right: 30px;
+  }
+
+  &:last-child {
+    background-color: #e5aeae;
+    margin-top: 20px;
   }
 }
 button:hover {

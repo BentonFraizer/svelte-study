@@ -7,7 +7,7 @@
   }
 
   let count: number = $state(0);
-  let timestamp: number = $state(0);
+  let timestamp: number = $state(1);
   let history: IAction[] = $state([]);
   let lastHistoryActions: IAction[] = $derived(history.slice(-5).reverse());
   let average =  $derived(history.length > 0 ? history.reduce((acc, cur) => acc + cur.newValue, 0) / history.length : 0);
@@ -33,6 +33,15 @@
     })
     timestamp += 1;
   }
+
+  const undoLastAction = () => {
+    history[history.length - 1].type === "increment" ? count -= 1 : count += 1;
+    timestamp = history.length;
+
+    if (history.length > 0) {
+      history.pop();
+    }
+  }
 </script>
 
 <div class="controls">
@@ -46,6 +55,10 @@
   </button>
   <hr />
   <p>Average value: {average.toFixed(2)}</p>
+  <hr />
+  <button onclick={undoLastAction} >
+    Undo last action
+  </button>
 </div>
 
 
@@ -54,7 +67,7 @@
     <p>History</p>
     {#each lastHistoryActions as historyAction}
       <div>
-        {history.indexOf(historyAction) + 1}.
+        {historyAction.timestamp}.
         {#if historyAction.type === "increment"}
           <span class="green">Counter incremented: {historyAction.newValue}</span>
         {:else}
