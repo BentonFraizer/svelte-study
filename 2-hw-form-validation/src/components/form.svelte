@@ -33,16 +33,19 @@
     touched: false,
   });
 
-  let formData: FormState = $derived({ username, password, confirmPassword })
+  let formData: FormState = $derived({ username, password, confirmPassword });
+  const isFormValid = $derived(username.isValidating && password.isValidating && confirmPassword.isValidating);
+  let formValidationMessage = $state("");
 
   // Валидация поля username
   const handleUsernameInputChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+    formValidationMessage = "";
 
     if (target) {
       // Проверка на длину строки
-      if (target.value.length < 2 ) {
-        if (!formData.username.errors.includes("Username must be at least 2 characters")){
+      if (target.value.length < 2) {
+        if (!formData.username.errors.includes("Username must be at least 2 characters")) {
           formData.username.errors.push("Username must be at least 2 characters");
         }
       } else {
@@ -53,7 +56,7 @@
       const onlyLettersRegExp = /^[a-zA-Z]+$/;
 
       if (!onlyLettersRegExp.test(target.value)) {
-        if(!formData.username.errors.includes("Username must have letter only")) {
+        if (!formData.username.errors.includes("Username must have letter only")) {
           formData.username.errors.push("Username must have letter only");
         }
       } else {
@@ -68,11 +71,12 @@
   // Валидация поля password
   const handlePasswordInputChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+    formValidationMessage = "";
 
     if (target) {
       // Проверка на длину строки
-      if (target.value.length < 8 ) {
-        if (!formData.password.errors.includes("Password must be at least 8 characters")){
+      if (target.value.length < 8) {
+        if (!formData.password.errors.includes("Password must be at least 8 characters")) {
           formData.password.errors.push("Password must be at least 8 characters");
         }
       } else {
@@ -83,7 +87,7 @@
       const onlyLettersAndNumbersRegExp = /^(?=.*[a-zA-Z])(?=.*\d).+$/;
 
       if (!onlyLettersAndNumbersRegExp.test(target.value)) {
-        if(!formData.password.errors.includes("Username must have at least one letter and one digit")) {
+        if (!formData.password.errors.includes("Username must have at least one letter and one digit")) {
           formData.password.errors.push("Username must have at least one letter and one digit");
         }
       } else {
@@ -98,12 +102,10 @@
   // Валидация поля confirmPassword
   const handleConfirmPasswordInputChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
-    console.log("target.value", target.value)
-    console.log("formData.password.value", formData.password.value)
+    formValidationMessage = "";
     formData.confirmPassword.isValidating = target.value === formData.password.value;
-    console.log("formData.confirmPassword.isValidating", formData.confirmPassword.isValidating)
 
-    if(!formData.confirmPassword.isValidating) {
+    if (!formData.confirmPassword.isValidating) {
       if (!formData.confirmPassword.errors.includes("Passwords do not match")) {
         formData.confirmPassword.errors.push("Passwords do not match");
       }
@@ -114,7 +116,14 @@
 
   const handleFormSubmit = (e: SubmitEvent) => {
     e.preventDefault();
-    console.log("form submitted");
+    if (isFormValid) {
+      formValidationMessage = "Form submitted!";
+      formData.username.value = "";
+      formData.password.value = "";
+      formData.confirmPassword.value = "";
+    } else {
+      formValidationMessage = "form fields are not valid.";
+    }
   };
 </script>
 
@@ -135,7 +144,9 @@
       onfocus={() => {formData.username.touched = true}}
     />
     {#if (formData.username.errors.length > 0)}
-      <span class="error-message">{formData.username.errors.join(", ")}</span>
+      <div class="error-message">{formData.username.errors.join(", ")}</div>
+    {:else}
+      <div class="empty"></div>
     {/if}
   </div>
 
@@ -147,14 +158,16 @@
       Password:
     </label>
     <input
-      type="password"
+      type="text"
       id="password"
       bind:value={password.value}
       oninput={e => handlePasswordInputChange(e)}
       onfocus={() => formData.password.touched = true}
     />
     {#if (formData.password.errors.length > 0)}
-      <span class="error-message">{formData.password.errors.join(", ")}</span>
+      <div class="error-message">{formData.password.errors.join(", ")}</div>
+    {:else}
+      <div class="empty"></div>
     {/if}
   </div>
 
@@ -176,12 +189,15 @@
       }}
     />
     {#if (formData.confirmPassword.errors.length > 0)}
-      <span class="error-message">{formData.confirmPassword.errors.join(", ")}</span>
+      <div class="error-message">{formData.confirmPassword.errors.join(", ")}</div>
+    {:else}
+      <div class="empty"></div>
     {/if}
   </div>
 
   <input type="submit" value="Submit">
 </form>
+<p>{formValidationMessage}</p>
 
 <style>
   h3 {
@@ -200,11 +216,12 @@
   }
 
   div {
-    margin-bottom: 20px;
     text-align: right;
   }
 
   .error-message {
+    height: 17px;
+    margin: 0;
     text-align: right;
     display: block;
     font-size: 11px;
@@ -213,5 +230,10 @@
 
   .not-valid {
     color: red;
+  }
+
+  .empty {
+    margin: 0;
+    height: 17px;
   }
 </style>
