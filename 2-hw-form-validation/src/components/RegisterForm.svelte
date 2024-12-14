@@ -1,4 +1,6 @@
 <script lang="ts">
+  // RegistrationForm
+
   interface FormField {
     value: string;
     touched: boolean;
@@ -200,21 +202,6 @@
 <p>{formValidationMessage}</p>
 
 <style>
-  h3 {
-    text-align: center;
-  }
-
-  form {
-    min-width: 450px;
-    border: 5px solid gray;
-    border-radius: 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding: 50px;
-  }
-
   div {
     text-align: right;
   }
