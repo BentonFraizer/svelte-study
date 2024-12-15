@@ -1,14 +1,9 @@
 <script lang="ts">
   // RegistrationForm
 
-  interface FormField {
-    value: string;
-    touched: boolean;
-    errors: string[];
-    isValidating: boolean;
-  }
+  import type { FormField } from "../lib/types";
 
-  interface FormState {
+  interface RegisterFormState {
     username: FormField;
     password: FormField;
     confirmPassword: FormField;
@@ -35,7 +30,7 @@
     touched: false,
   });
 
-  let formData: FormState = $derived({ username, password, confirmPassword });
+  let formData: RegisterFormState = $derived({ username, password, confirmPassword });
   const isFormValid = $derived(username.isValidating && password.isValidating && confirmPassword.isValidating);
   let formValidationMessage = $state("");
 
