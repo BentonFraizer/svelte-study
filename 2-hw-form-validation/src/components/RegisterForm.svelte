@@ -154,6 +154,7 @@
     >
       Password:
     </label>
+    <!-- тип text в поле password оставлен специально для удобства разработки и тестирования -->
     <input
       type="text"
       id="password"

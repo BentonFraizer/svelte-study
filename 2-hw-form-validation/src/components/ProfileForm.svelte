@@ -7,6 +7,11 @@
     username: FormField;
     password: FormField;
     confirmPassword: FormField;
+    fullName: FormField;
+    age: FormField;
+    bio: FormField;
+    email: FormField;
+    phone: FormField;
   }
 
   let username = $state({
@@ -65,12 +70,125 @@
     touched: false,
   });
 
-  let formData: ProfileFormState = $derived({ username, password, confirmPassword, fullName, age, bio, email, phone });
-  $inspect("fullName: ", formData)
+  let formData: ProfileFormState = $derived({ username, password, confirmPassword, fullName, age, bio, email, phone })
+  $inspect("fullName: ", fullName)
+  let formValidationMessage = $state("")
+
+  // Валидация поля username
+  const handleUsernameInputOnblur = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    formValidationMessage = "";
+
+    if (target) {
+      // Проверка на длину строки
+      if (target.value.length < 2) {
+        if (!formData.username.errors.includes("Username must be at least 2 characters")) {
+          formData.username.errors.push("Username must be at least 2 characters");
+        }
+      } else {
+        formData.username.errors = formData.username.errors.filter((error) => error !== "Username must be at least 2 characters");
+      }
+
+      // Проверка на отсутствие любых символов кроме букв
+      const onlyLettersRegExp = /^[a-zA-Z]+$/;
+
+      if (!onlyLettersRegExp.test(target.value)) {
+        if (!formData.username.errors.includes("Username must have letter only")) {
+          formData.username.errors.push("Username must have letter only");
+        }
+      } else {
+        formData.username.errors = formData.username.errors.filter((error) => error !== "Username must have letter only");
+      }
+
+      // Установка/снятие флага валидации
+      formData.username.isValidating = formData.username.errors.length === 0;
+    }
+  };
+
+  // Валидация поля password
+  const handlePasswordInputOnblur = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    formValidationMessage = "";
+
+    if (target) {
+      // Проверка на длину строки
+      if (target.value.length < 8) {
+        if (!formData.password.errors.includes("Password must be at least 8 characters")) {
+          formData.password.errors.push("Password must be at least 8 characters");
+        }
+      } else {
+        formData.password.errors = formData.password.errors.filter((error) => error !== "Password must be at least 8 characters");
+      }
+
+      // Проверка на отсутствие любых символов кроме букв
+      const onlyLettersAndNumbersRegExp = /^(?=.*[a-zA-Z])(?=.*\d).+$/;
+
+      if (!onlyLettersAndNumbersRegExp.test(target.value)) {
+        if (!formData.password.errors.includes("Username must have at least one letter and one digit")) {
+          formData.password.errors.push("Username must have at least one letter and one digit");
+        }
+      } else {
+        formData.password.errors = formData.password.errors.filter((error) => error !== "Username must have at least one letter and one digit");
+      }
+
+      // Установка/снятие флага валидации
+      formData.password.isValidating = formData.password.errors.length === 0;
+    }
+  };
+
+  // Валидация поля confirmPassword
+  const handleConfirmPasswordInputOnblur = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    formValidationMessage = "";
+    formData.confirmPassword.isValidating = target.value === formData.password.value;
+
+    if (!formData.confirmPassword.isValidating) {
+      if (!formData.confirmPassword.errors.includes("Passwords do not match")) {
+        formData.confirmPassword.errors.push("Passwords do not match");
+      }
+    } else {
+      formData.confirmPassword.errors = formData.confirmPassword.errors.filter((error) => error !== "Passwords do not match");
+    }
+  };
+
+  // Валидация поля Full Name
+  const handleFullNameInputOnblur = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+
+    // 1. Два слова, разделенные одним пробелом
+    if (!/^\S+ \S+$/.test(target.value)) {
+      if (!formData.fullName.errors.includes("Input must contain exactly two words separated by a single space.")) {
+        formData.fullName.errors.push("Input must contain exactly two words separated by a single space.");
+      }
+    } else {
+      formData.fullName.errors = formData.fullName.errors.filter((error) => error !== "Input must contain exactly two words separated by a single space.");
+    }
+
+    // 2. Только буквы латинского алфавита
+    if (!/^[A-Za-z ]+$/.test(target.value)) {
+      if (!formData.fullName.errors.includes("Input must contain only Latin letters.")) {
+        formData.fullName.errors.push("Input must contain only Latin letters.");
+      }
+    } else {
+      formData.fullName.errors = formData.fullName.errors.filter((error) => error !== "Input must contain only Latin letters.");
+    }
+
+    // 3. Каждое слово должно начинаться с большой буквы
+    if (!/^[A-Z][a-z]* [A-Z][a-z]*$/.test(target.value)) {
+      if (!formData.fullName.errors.includes("Each word must start with a capital letter.")) {
+        formData.fullName.errors.push("Each word must start with a capital letter.");
+      }
+    } else {
+      formData.fullName.errors = formData.fullName.errors.filter((error) => error !== "Each word must start with a capital letter.");
+    }
+
+    // Установка/снятие флага валидации
+    formData.fullName.isValidating = formData.fullName.errors.length === 0;
+  }
 
   const handleFormSubmit = (e: Event) => {
     e.preventDefault();
-    console.log("e: ", e)
+    // console.log("e: ", e)
   };
 
 </script>
@@ -89,10 +207,13 @@
       id="username"
       name="username"
       bind:value={username.value}
-      onfocus={() => {formData.username.touched = true}}
+      onblur={(e) => {
+        handleUsernameInputOnblur(e);
+        formData.username.touched = true
+      }}
     />
     {#if (formData.username.errors.length > 0)}
-      <div class="error-message">{formData.username.errors.join(", ")}</div>
+      <div class="error-message">{formData.username.errors[0]}</div>
     {:else}
       <div class="empty"></div>
     {/if}
@@ -105,15 +226,19 @@
     >
       Password:
     </label>
+    <!-- тип text в поле password оставлен специально для удобства разработки и тестирования -->
     <input
       type="text"
       id="password"
       name="password"
       bind:value={password.value}
-      onfocus={() => formData.password.touched = true}
+      onblur={(e) => {
+        handlePasswordInputOnblur(e);
+        formData.password.touched = true
+      }}
     />
     {#if (formData.password.errors.length > 0)}
-      <div class="error-message">{formData.password.errors.join(", ")}</div>
+      <div class="error-message">{formData.password.errors[0]}</div>
     {:else}
       <div class="empty"></div>
     {/if}
@@ -131,13 +256,14 @@
       id="confirmPassword"
       name="confirmPassword"
       bind:value={confirmPassword.value}
-      onfocus={() => {
+      onblur={(e) => {
+        handleConfirmPasswordInputOnblur(e)
         formData.confirmPassword.touched = true;
-        formData.confirmPassword.value = "";
       }}
+      onfocus={() => formData.confirmPassword.value = ""}
     />
     {#if (formData.confirmPassword.errors.length > 0)}
-      <div class="error-message">{formData.confirmPassword.errors.join(", ")}</div>
+      <div class="error-message">{formData.confirmPassword.errors[0]}</div>
     {:else}
       <div class="empty"></div>
     {/if}
@@ -146,18 +272,32 @@
   <hr/>
 
   <div>
-    <label for="fullName">Full Name:</label>
+    <label
+      for="fullName"
+      class:not-valid={formData.fullName.touched && !formData.fullName.isValidating}
+    >
+      Full Name:
+    </label>
     <input
       type="text"
       id="fullName"
       name="fullName"
       bind:value={fullName.value}
+      onblur={(e) => {
+        handleFullNameInputOnblur(e)
+        formData.fullName.touched = true
+      }}
     />
+    {#if (formData.fullName.errors.length > 0)}
+      <div class="error-message">{formData.fullName.errors[0]}</div>
+    {:else}
+      <div class="empty"></div>
+    {/if}
   </div>
   <div>
     <label for="age">Age:</label>
     <input
-      type="number"
+      type="text"
       id="age"
       name="age"
       bind:value={age.value}
