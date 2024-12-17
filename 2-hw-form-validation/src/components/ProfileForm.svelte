@@ -71,11 +71,10 @@
   });
 
   let formData: ProfileFormState = $derived({ username, password, confirmPassword, fullName, age, bio, email, phone })
-  $inspect("bio: ", bio)
   let formValidationMessage = $state("")
 
   // Валидация поля username
-  const handleUsernameInputOnblur = (e: Event) => {
+  const handleValidateUsernameInputOnblur = (e: Event) => {
     const target = e.target as HTMLInputElement;
     formValidationMessage = "";
 
@@ -106,7 +105,7 @@
   };
 
   // Валидация поля password
-  const handlePasswordInputOnblur = (e: Event) => {
+  const handleValidatePasswordInputOnblur = (e: Event) => {
     const target = e.target as HTMLInputElement;
     formValidationMessage = "";
 
@@ -137,7 +136,7 @@
   };
 
   // Валидация поля confirmPassword
-  const handleConfirmPasswordInputOnblur = (e: Event) => {
+  const handleValidateConfirmPasswordInputOnblur = (e: Event) => {
     const target = e.target as HTMLInputElement;
     formValidationMessage = "";
     formData.confirmPassword.isValidating = target.value === formData.password.value;
@@ -152,7 +151,7 @@
   };
 
   // Валидация поля Full Name
-  const handleFullNameInputOnblur = (e: Event) => {
+  const handleValidateFullNameInputOnblur = (e: Event) => {
     const target = e.target as HTMLInputElement;
 
     // 1. Два слова, разделенные одним пробелом
@@ -193,7 +192,7 @@
   }
 
   // Валидация поля age
-  const handleAgeInputOnblur = (e: Event) => {
+  const handleValidateAgeInputOnblur = (e: Event) => {
     const target = e.target as HTMLInputElement;
     if (Number(target.value) < 18 || Number(target.value) > 100) {
       if (!formData.age.errors.includes("Age must be between 18 and 100.")) {
@@ -208,7 +207,7 @@
   }
 
   // Валидация поля bio
-  const handleBioInputOnblur = (e: Event) => {
+  const handleValidateBioInputOnblur = (e: Event) => {
     const target = e.target as HTMLInputElement;
 
     if (target.value.length < 10 || target.value.length > 200) {
@@ -224,7 +223,7 @@
   }
 
   // Валидация поля email
-  const handleEmailInputOnblur = (e: Event) => {
+  const handleValidateEmailInputOnblur = (e: Event) => {
     const target = e.target as HTMLInputElement;
 
     if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,}$/.test(target.value)) {
@@ -237,6 +236,31 @@
 
     // Установка/снятие флага валидации
     formData.email.isValidating = formData.email.errors.length === 0;
+  }
+
+  const handleCorrectPhoneInputOnchange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+
+    let value = target.value;
+
+    // Удаляем все недопустимые символы
+    formData.phone.value = value.replace(/[^+\d]/g, ''); // Разрешаем только "+" и цифры
+  }
+
+  // Валидация поля phone
+  const handleValidatePhoneInputOnblur = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+
+    if(!/^\+7\d{10}$/.test(target.value)) {
+      if (!formData.phone.errors.includes("Invalid phone number.")) {
+        formData.phone.errors.push("Invalid phone number.");
+      }
+    } else {
+      formData.phone.errors = formData.phone.errors.filter((error) => error !== "Invalid phone number.");
+    }
+
+    // Установка/снятие флага валидации
+    formData.phone.isValidating = formData.phone.errors.length === 0;
   }
 
   const handleFormSubmit = (e: Event) => {
@@ -261,7 +285,7 @@
       name="username"
       bind:value={username.value}
       onblur={(e) => {
-        handleUsernameInputOnblur(e);
+        handleValidateUsernameInputOnblur(e);
         formData.username.touched = true
       }}
     />
@@ -286,7 +310,7 @@
       name="password"
       bind:value={password.value}
       onblur={(e) => {
-        handlePasswordInputOnblur(e);
+        handleValidatePasswordInputOnblur(e);
         formData.password.touched = true
       }}
     />
@@ -310,7 +334,7 @@
       name="confirmPassword"
       bind:value={confirmPassword.value}
       onblur={(e) => {
-        handleConfirmPasswordInputOnblur(e)
+        handleValidateConfirmPasswordInputOnblur(e)
         formData.confirmPassword.touched = true;
       }}
       onfocus={() => formData.confirmPassword.value = ""}
@@ -337,7 +361,7 @@
       name="fullName"
       bind:value={fullName.value}
       onblur={(e) => {
-        handleFullNameInputOnblur(e)
+        handleValidateFullNameInputOnblur(e)
         formData.fullName.touched = true
       }}
     />
@@ -356,7 +380,7 @@
       bind:value={age.value}
       oninput={handleAgeInputChange}
       onblur={(e) => {
-        handleAgeInputOnblur(e)
+        handleValidateAgeInputOnblur(e)
         formData.age.touched = true
       }}
     />
@@ -375,7 +399,7 @@
       cols="50"
       bind:value={bio.value}
       onblur={(e) => {
-        handleBioInputOnblur(e)
+        handleValidateBioInputOnblur(e)
         formData.bio.touched = true
       }}
     ></textarea>
@@ -393,9 +417,10 @@
       name="email"
       bind:value={email.value}
       onblur={(e) => {
-        handleEmailInputOnblur(e)
+        handleValidateEmailInputOnblur(e)
         formData.email.touched = true
       }}
+      placeholder="email@example.com"
     />
     {#if (formData.email.errors.length > 0)}
       <div class="error-message">{formData.email.errors[0]}</div>
@@ -404,13 +429,24 @@
     {/if}
   </div>
   <div>
-    <label for="phone">Phone:</label>
+    <label for="phone" class:not-valid={formData.phone.touched && !formData.phone.isValidating}>Phone:</label>
     <input
       type="text"
       id="phone"
       name="phone"
       bind:value={phone.value}
+      oninput={handleCorrectPhoneInputOnchange}
+      onblur={(e) => {
+        handleValidatePhoneInputOnblur(e)
+        formData.phone.touched = true
+      }}
+      placeholder="+7XXXXXXXXXX"
     />
+    {#if (formData.phone.errors.length > 0)}
+      <div class="error-message">{formData.phone.errors[0]}</div>
+    {:else}
+      <div class="empty"></div>
+    {/if}
   </div>
 
   <input type="submit" value="Submit">

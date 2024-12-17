@@ -35,7 +35,7 @@
   let formValidationMessage = $state("");
 
   // Валидация поля username
-  const handleUsernameInputChange = (e: Event) => {
+  const handleValidateUsernameInputChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     formValidationMessage = "";
 
@@ -66,7 +66,7 @@
   };
 
   // Валидация поля password
-  const handlePasswordInputChange = (e: Event) => {
+  const handleValidatePasswordInputChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     formValidationMessage = "";
 
@@ -97,7 +97,7 @@
   };
 
   // Валидация поля confirmPassword
-  const handleConfirmPasswordInputChange = (e: Event) => {
+  const handleValidateConfirmPasswordInputChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     formValidationMessage = "";
     formData.confirmPassword.isValidating = target.value === formData.password.value;
@@ -137,7 +137,7 @@
       type="text"
       id="username"
       bind:value={username.value}
-      oninput={e => handleUsernameInputChange(e)}
+      oninput={e => handleValidateUsernameInputChange(e)}
       onfocus={() => {formData.username.touched = true}}
     />
     {#if (formData.username.errors.length > 0)}
@@ -159,7 +159,7 @@
       type="text"
       id="password"
       bind:value={password.value}
-      oninput={e => handlePasswordInputChange(e)}
+      oninput={e => handleValidatePasswordInputChange(e)}
       onfocus={() => formData.password.touched = true}
     />
     {#if (formData.password.errors.length > 0)}
@@ -180,7 +180,7 @@
       type="password"
       id="confirmPassword"
       bind:value={confirmPassword.value}
-      oninput={e => handleConfirmPasswordInputChange(e)}
+      oninput={e => handleValidateConfirmPasswordInputChange(e)}
       onfocus={() => {
         formData.confirmPassword.touched = true;
         formData.confirmPassword.value = "";
