@@ -186,6 +186,28 @@
     formData.fullName.isValidating = formData.fullName.errors.length === 0;
   }
 
+  // Обработчик события для поля age. Запрет ввода любых символов кроме чисел, включая точки и запятые
+  const handleAgeInputChange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    formData.age.value = target.value.replace(/\D/g, '');
+  }
+
+  // Валидация поля age
+  const handleAgeInputOnblur = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+
+    if (target.value <= "18" && target.value >= "100") {
+      if (!formData.age.errors.includes("Age must be between 18 and 100.")) {
+        formData.age.errors.push("Age must be between 18 and 100.");
+      }
+    } else {
+      formData.age.errors = formData.age.errors.filter((error) => error !== "Age must be between 18 and 100.");
+    }
+
+    // Установка/снятие флага валидации
+    formData.age.isValidating = formData.age.errors.length === 0;
+  }
+
   const handleFormSubmit = (e: Event) => {
     e.preventDefault();
     // console.log("e: ", e)
@@ -295,13 +317,23 @@
     {/if}
   </div>
   <div>
-    <label for="age">Age:</label>
+    <label for="age" class:not-valid={formData.age.touched && !formData.age.isValidating}>Age:</label>
     <input
       type="text"
       id="age"
       name="age"
       bind:value={age.value}
+      oninput={handleAgeInputChange}
+      onblur={(e) => {
+        handleAgeInputOnblur(e)
+        formData.age.touched = true
+      }}
     />
+    {#if (formData.age.errors.length > 0)}
+      <div class="error-message">{formData.age.errors[0]}</div>
+    {:else}
+      <div class="empty"></div>
+    {/if}
   </div>
   <div>
     <label for="bio">Bio:</label>
