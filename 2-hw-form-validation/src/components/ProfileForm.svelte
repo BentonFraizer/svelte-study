@@ -71,7 +71,7 @@
   });
 
   let formData: ProfileFormState = $derived({ username, password, confirmPassword, fullName, age, bio, email, phone })
-  $inspect("fullName: ", fullName)
+  $inspect("bio: ", bio)
   let formValidationMessage = $state("")
 
   // Валидация поля username
@@ -195,8 +195,7 @@
   // Валидация поля age
   const handleAgeInputOnblur = (e: Event) => {
     const target = e.target as HTMLInputElement;
-
-    if (target.value <= "18" && target.value >= "100") {
+    if (Number(target.value) < 18 || Number(target.value) > 100) {
       if (!formData.age.errors.includes("Age must be between 18 and 100.")) {
         formData.age.errors.push("Age must be between 18 and 100.");
       }
@@ -206,6 +205,22 @@
 
     // Установка/снятие флага валидации
     formData.age.isValidating = formData.age.errors.length === 0;
+  }
+
+  // Валидация поля bio
+  const handleBioInputOnblur = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+
+    if (target.value.length < 10 || target.value.length > 200) {
+      if (!formData.bio.errors.includes("Text should contain from 10 to 200 symbols.")) {
+        formData.bio.errors.push("Text should contain from 10 to 200 symbols.");
+      }
+    } else {
+      formData.bio.errors = formData.bio.errors.filter((error) => error !== "Text should contain from 10 to 200 symbols.");
+    }
+
+    // Установка/снятие флага валидации
+    formData.bio.isValidating = formData.bio.errors.length === 0;
   }
 
   const handleFormSubmit = (e: Event) => {
@@ -336,8 +351,23 @@
     {/if}
   </div>
   <div>
-    <label for="bio">Bio:</label>
-    <textarea id="bio" name="bio" rows="5" cols="50" bind:value={bio.value}></textarea>
+    <label for="bio" class:not-valid={formData.bio.touched && !formData.bio.isValidating}>Bio:</label>
+    <textarea
+      id="bio"
+      name="bio"
+      rows="5"
+      cols="50"
+      bind:value={bio.value}
+      onblur={(e) => {
+        handleBioInputOnblur(e)
+        formData.bio.touched = true
+      }}
+    ></textarea>
+    {#if (formData.bio.errors.length > 0)}
+      <div class="error-message">{formData.bio.errors[0]}</div>
+    {:else}
+      <div class="empty"></div>
+    {/if}
   </div>
   <div>
     <label for="email">Email:</label>
