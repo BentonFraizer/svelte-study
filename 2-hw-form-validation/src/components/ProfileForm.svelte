@@ -223,6 +223,22 @@
     formData.bio.isValidating = formData.bio.errors.length === 0;
   }
 
+  // Валидация поля email
+  const handleEmailInputOnblur = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+
+    if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,}$/.test(target.value)) {
+      if (!formData.email.errors.includes("Invalid email address.")) {
+        formData.email.errors.push("Invalid email address.");
+      }
+    } else {
+      formData.email.errors = formData.email.errors.filter((error) => error !== "Invalid email address.");
+    }
+
+    // Установка/снятие флага валидации
+    formData.email.isValidating = formData.email.errors.length === 0;
+  }
+
   const handleFormSubmit = (e: Event) => {
     e.preventDefault();
     // console.log("e: ", e)
@@ -370,13 +386,22 @@
     {/if}
   </div>
   <div>
-    <label for="email">Email:</label>
+    <label for="email" class:not-valid={formData.email.touched && !formData.email.isValidating}>Email:</label>
     <input
       type="email"
       id="email"
       name="email"
       bind:value={email.value}
+      onblur={(e) => {
+        handleEmailInputOnblur(e)
+        formData.email.touched = true
+      }}
     />
+    {#if (formData.email.errors.length > 0)}
+      <div class="error-message">{formData.email.errors[0]}</div>
+    {:else}
+      <div class="empty"></div>
+    {/if}
   </div>
   <div>
     <label for="phone">Phone:</label>
