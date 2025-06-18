@@ -35,22 +35,18 @@
   }
 
   const updateTasks = (id, done) => {
-    tasks = tasks.map((todo) => {
-      if (todo.id === id) {
-        todo.done = done;
-      }
-      return todo;
-    });
+    tasks = tasks.map((todo) => todo.id === id ? {...todo,  done} : todo);
   };
 
   const addTask = (title) => {
-    tasks.unshift({
-      id: tasks.length + 1,
-      done: false,
-      title: title,
-    });
-
-    tasks = tasks;
+    tasks = [
+      {
+        id: tasks.length + 1,
+        done: false,
+        title: title,
+      },
+      ...tasks
+    ]
   };
 
   $: uncompletedTasks = tasks.filter((todo) => todo.done === false).length;
