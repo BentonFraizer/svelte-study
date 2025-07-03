@@ -6,7 +6,11 @@
 
 <ul>
   {#each tasks as task (task.id)}
-    <Task data={task} {updateTasks} />
+    <Task
+      data={task}
+      {updateTasks}
+      on:delete
+    />
   {/each}
 </ul>
 
@@ -14,5 +18,7 @@
   ul {
     padding: 0;
     text-align: start;
+    max-width: 600px;
+    width: 100%;
   }
 </style>
